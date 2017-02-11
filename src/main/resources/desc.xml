@@ -1,0 +1,3 @@
+<components>
+    <mt_adapter class="com.spartansoftwareinc.ws.mt.lilt.WSLiltMTAdapter" />
+</components>
