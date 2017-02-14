@@ -20,5 +20,7 @@ public interface LiltAPI {
      */
     List<String> getSimpleTranslation(long memoryId, String source, int count) throws IOException;
 
+    List<Translation> getRichTranslation(long memoryId, String source, int count) throws IOException;
+
     void updateTranslation(long memoryId, String source, String target) throws IOException;
 }

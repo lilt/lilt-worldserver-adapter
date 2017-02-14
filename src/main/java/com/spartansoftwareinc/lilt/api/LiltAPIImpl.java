@@ -28,6 +28,7 @@ public class LiltAPIImpl implements LiltAPI {
         this.apiKey = apiKey;
     }
 
+    @Override
     public Memory getMemory(long memoryId) throws IOException {
         try {
             HttpUriRequest request = get("/mem")
@@ -62,6 +63,7 @@ public class LiltAPIImpl implements LiltAPI {
                 ", for query " + request.toString());
     }
 
+    @Override
     public List<Memory> getAllMemories() throws IOException {
         try {
             String raw = getRawJSONResponse(get("/mem").build());
@@ -73,6 +75,7 @@ public class LiltAPIImpl implements LiltAPI {
         }
     }
 
+    @Override
     public List<String> getSimpleTranslation(long memoryId, String source, int count) throws IOException {
         try {
             HttpUriRequest request = get("/tr")
@@ -89,6 +92,25 @@ public class LiltAPIImpl implements LiltAPI {
         }
     }
 
+    @Override
+    public List<Translation> getRichTranslation(long memoryId, String source, int count) throws IOException {
+        try {
+            HttpUriRequest request = get("/tr")
+                    .addParameter("memory_id", String.valueOf(memoryId))
+                    .addParameter("source", source)
+                    .addParameter("n", String.valueOf(count))
+                    .addParameter("rich", String.valueOf(true))
+                    .build();
+            String raw = getRawJSONResponse(request);
+            return raw != null ? parser.parseRichTranslation(raw) : null;
+        }
+        catch (ParseException e) {
+            // XXX what is the right thing to do here?
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public void updateTranslation(long memoryId, String source, String target) {
         // TODO Auto-generated method stub
         
@@ -99,9 +121,13 @@ public class LiltAPIImpl implements LiltAPI {
     }
 
     protected HttpResponse execute(HttpUriRequest request) throws IOException {
-        LOG.info(request.toString()); // TODO make debug
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(request.toString());
+        }
         HttpResponse response = client.execute(request);
-        LOG.info(response.toString()); // TODO make debug
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(response.toString());
+        }
         return response;
     }
 

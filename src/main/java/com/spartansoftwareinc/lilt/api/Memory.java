@@ -18,6 +18,10 @@ public class Memory {
         this.nexamples = nexamples;
     }
 
+    public boolean supportsLanguagePair(String srcLang, String tgtLang) {
+        return srcLang.equals(this.srcLang) && tgtLang.equals(this.tgtLang);
+    }
+
     static Memory fromJSON(JSONObject json) {
         Long id = requireLong(json, "memory_id");
         String srcLang = requireString(json, "srclang");

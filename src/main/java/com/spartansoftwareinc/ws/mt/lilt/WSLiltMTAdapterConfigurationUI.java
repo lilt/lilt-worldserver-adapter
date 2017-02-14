@@ -1,8 +1,10 @@
 package com.spartansoftwareinc.ws.mt.lilt;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -21,9 +23,11 @@ public class WSLiltMTAdapterConfigurationUI extends WSComponentConfigurationUI {
 
     private static final String LABEL_API_KEY = "API Key";
     private static final String LABEL_MEMORY_IDS = "Memory IDs";
+    private static final String LABEL_MATCH_SCORE = "MT Match Score";
 
     private static final String API_KEY = "apiKey";
     private static final String MEMORY_IDS = "memoryIds";
+    private static final String MATCH_SCORE = "matchScore";
 
     @Override
     public String render(WSContext context, HttpServletRequest request, WSComponentConfigurationData config) {
@@ -39,10 +43,11 @@ public class WSLiltMTAdapterConfigurationUI extends WSComponentConfigurationUI {
             sb.append(UIUtil.escapeHtml(error));
             sb.append("</p>");
         }
-        List<String> memoryIds = configData.getMemoryIds();
+        Set<String> memoryIds = configData.getMemoryIds();
         UITable table = new UITable()
                 .add(new UITextField(LABEL_API_KEY, API_KEY, apiKey))
-                .add(new UIMultiValueInput(LABEL_MEMORY_IDS, MEMORY_IDS, memoryIds, memoryIds));
+                .add(new UIMultiValueInput(LABEL_MEMORY_IDS, MEMORY_IDS, memoryIds, memoryIds))
+                .add(new UINumericInput(LABEL_MATCH_SCORE, MATCH_SCORE, 0, 100, configData.getMatchScore()));
         sb.append(table.render());
         return sb.toString();
     }
@@ -55,7 +60,7 @@ public class WSLiltMTAdapterConfigurationUI extends WSComponentConfigurationUI {
                 : ((WSLiltMTAdapterConfigurationData) config);
 
         final String apiKey = request.getParameter(API_KEY);
-        List<String> memoryIds = UIUtil.getOptionValues(request, "memoryIds_keys_res");
+        Set<String> memoryIds = new HashSet<>(UIUtil.getOptionValues(request, "memoryIds_keys_res"));
 
         String errors = null;
 
@@ -72,6 +77,11 @@ public class WSLiltMTAdapterConfigurationUI extends WSComponentConfigurationUI {
             errors = addError(LABEL_MEMORY_IDS, errors);
         }
 
+        int matchScore = getMatchScoreParameter(request);
+        if (matchScore < 0 || matchScore > 100) {
+            errors = addError(LABEL_MATCH_SCORE, errors);
+        }
+
         if (errors != null) {
             request.setAttribute(ERROR_MESSAGE_ATTRIBUTE, ERROR_MESSAGE + errors);
             throw new IllegalArgumentException();
@@ -79,7 +89,7 @@ public class WSLiltMTAdapterConfigurationUI extends WSComponentConfigurationUI {
 
         configData.setApiKey(apiKey);
         configData.setMemoryIds(memoryIds);
-
+        configData.setMatchScore(matchScore);
         return configData;
     }
 
@@ -96,5 +106,14 @@ public class WSLiltMTAdapterConfigurationUI extends WSComponentConfigurationUI {
         catch (NumberFormatException e) {
         }
         return false;
+    }
+
+    private int getMatchScoreParameter(HttpServletRequest request) {
+        try {
+            return Integer.valueOf(request.getParameter(MATCH_SCORE));
+        }
+        catch (NumberFormatException e) {
+            return -1;
+        }
     }
 }

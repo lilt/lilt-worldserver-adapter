@@ -21,6 +21,8 @@ import com.idiominc.wssdk.component.mt.WSMTRequest;
 import com.idiominc.wssdk.linguistic.WSLanguage;
 import com.idiominc.wssdk.linguistic.WSLanguagePair;
 import com.idiominc.wssdk.linguistic.WSLinguisticManager;
+import com.idiominc.wssdk.mt.WSMTAdapterRuntimeException;
+import com.idiominc.wssdk.mt.WSMTResult;
 import com.spartansoftwareinc.lilt.api.LiltAPI;
 import com.spartansoftwareinc.lilt.api.LiltAPIImpl;
 import com.spartansoftwareinc.lilt.api.Memory;
@@ -75,6 +77,21 @@ public class WSLiltMTAdapter extends WSMTAdapterComponent {
     }
 
     @Override
+    public void translate(WSContext context, WSMTRequest[] mtRequests, WSLanguage srcLang, WSLanguage tgtLang) {
+        try {
+            // Find a memory for these languages
+            Memory mem = findMemoryForLanguagePair(srcLang, tgtLang);
+            LOG.warn("Using Lilt memory " + mem.id + " to translate " + srcLang.getName() + " --> " + tgtLang.getName());
+            for (WSMTRequest request : mtRequests) {
+                handleRequest(mem, request);
+            }
+        }
+        catch (IOException e) {
+            throw new WSMTAdapterRuntimeException("Failed to translate using Lilt MT", e);
+        }
+    }
+
+    @Override
     public WSComponentConfigurationUI getConfigurationUI() {
         return new WSLiltMTAdapterConfigurationUI();
     }
@@ -90,10 +107,31 @@ public class WSLiltMTAdapter extends WSMTAdapterComponent {
         return lingManager.getLanguage(new Locale(languageCode));
     }
 
-    @Override
-    public void translate(WSContext context, WSMTRequest[] mtRequests, WSLanguage srcLang, WSLanguage trgLang) {
-        // TODO Auto-generated method stub
-        
+    protected Memory findMemoryForLanguagePair(WSLanguage srcWSLang, WSLanguage tgtWSLang) throws IOException {
+        try {
+            List<Memory> memories = getLiltAPI().getAllMemories();
+            String srcLang = srcWSLang.getLocale().getLanguage();
+            String tgtLang = tgtWSLang.getLocale().getLanguage();
+            for (Memory mem : memories) {
+                if (mem.supportsLanguagePair(srcLang, tgtLang)) {
+                    return mem;
+                }
+            }
+        }
+        catch (IOException e) {
+            LOG.error("Encountered an error finding memory for language pair " +
+                      srcWSLang.getName() + " -> " + tgtWSLang.getName(), e);
+            throw e;
+        }
+        throw new WSMTAdapterRuntimeException("Could not find a configured Lilt memory for language pair " +
+                srcWSLang.getName() + " -> " + tgtWSLang.getName());
+    }
+
+    protected void handleRequest(Memory mem, WSMTRequest request) throws IOException {
+        List<String> response = getLiltAPI().getSimpleTranslation(mem.id, request.getSource(), 1);
+        WSMTResult[] results = new WSMTResult[1];
+        results[0] = new WSMTResult(request.getSource(), response.get(0), getConfiguration().getMatchScore());
+        request.setResults(results);
     }
 
     protected LiltAPI getLiltAPI() {

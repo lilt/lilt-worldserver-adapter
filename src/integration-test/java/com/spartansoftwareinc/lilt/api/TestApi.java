@@ -55,4 +55,13 @@ public class TestApi {
         assertEquals(1, results.size());
         assertEquals("Bonjour le monde", results.get(0));
     }
+
+    @Test
+    public void testGetRichTranslation() throws Exception {
+        List<Translation> results = api.getRichTranslation(9068, "Hello world", 1);
+        assertEquals(1, results.size());
+        assertEquals("Bonjour le monde", results.get(0).target);
+        assertFalse(results.get(0).isTMMatch);
+        System.out.println("Score: " + results.get(0).score);
+    }
 }

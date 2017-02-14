@@ -1,6 +1,6 @@
 package com.spartansoftwareinc.lilt.api;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -72,6 +72,20 @@ public class TestLiltAPIImpl {
         assertEquals("Bonjour", results.get(0));
         assertEquals("Hello", results.get(1));
         assertEquals("Bonjour,", results.get(2));
+    }
+
+    @Test
+    public void testParseRichTranslation() throws Exception {
+        String json = "{ \"untokenizedSource\": \"Hello\", \"tokenizedSource\": \"Hello\", \"sourceDelimiters\": " +
+                "[ \"\", \"\" ], \"translation\": [ { \"target\": \"Bonjour\", \"align\": \"0-0\", \"score\": " +
+                "9.2579074e-05, \"targetDelimiters\": [ \"\", \"\" ], \"isTMMatch\": false, \"provenance\": \"0\", " +
+                "\"sourceContextHash\": 0 } ], \"procTime\": 18 }";
+        setupResponse(json);
+        LiltAPI api = new LiltAPIImpl(client, "abcdef");
+        List<Translation> results = api.getRichTranslation(1234, "Hello", 1);
+        assertEquals(1, results.size());
+        assertEquals("Bonjour", results.get(0).target);
+        assertFalse(results.get(0).isTMMatch);
     }
 
     private void setupResponse(String rawJson) throws Exception {

@@ -33,4 +33,19 @@ class LiltObjectParser {
         }
         return results;
     }
+
+    public List<Translation> parseRichTranslation(String rawJson) throws ParseException {
+        /**
+         * Rich translation results have an outer container that includes source
+         * (tokenized/untokenized/delimiters) info, plus an inner 'translation' object that
+         * includes the results.
+         */
+        JSONObject json = (JSONObject)parser.parse(rawJson);
+        JSONArray tInfo = JSONUtil.requireArray(json, "translation");
+        List<Translation> results = new ArrayList<>();
+        for (Object o : tInfo) {
+            results.add(Translation.fromJSON(((JSONObject)o)));
+        }
+        return results;
+    }
 }

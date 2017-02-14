@@ -1,15 +1,17 @@
 package com.spartansoftwareinc.ws.mt.lilt;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import com.idiominc.wssdk.component.mt.WSMTConfigurationData;
 
 public class WSLiltMTAdapterConfigurationData extends WSMTConfigurationData {
     private static final long serialVersionUID = 1L;
+    private static final int DEFAULT_MATCH_SCORE = 95;
 
     private String apiKey;
-    private List<String> memoryIds = new ArrayList<>();
+    private LinkedHashSet<String> memoryIds = new LinkedHashSet<>();
+    private int matchScore = DEFAULT_MATCH_SCORE;
 
     public WSLiltMTAdapterConfigurationData() {
     }
@@ -22,11 +24,19 @@ public class WSLiltMTAdapterConfigurationData extends WSMTConfigurationData {
         this.apiKey = apiKey;
     }
 
-    public List<String> getMemoryIds() {
+    public Set<String> getMemoryIds() {
         return memoryIds;
     }
 
-    public void setMemoryIds(List<String> memoryIds) {
-        this.memoryIds = memoryIds;
+    public void setMemoryIds(Set<String> memoryIds) {
+        this.memoryIds = new LinkedHashSet<>(memoryIds);
+    }
+
+    public int getMatchScore() {
+        return matchScore;
+    }
+
+    public void setMatchScore(int matchScore) {
+        this.matchScore = matchScore;
     }
 }
