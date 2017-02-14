@@ -18,6 +18,7 @@ import com.idiominc.wssdk.component.WSComponentConfiguration;
 import com.idiominc.wssdk.component.WSComponentConfigurationUI;
 import com.idiominc.wssdk.component.mt.WSMTAdapterComponent;
 import com.idiominc.wssdk.component.mt.WSMTRequest;
+import com.idiominc.wssdk.component.mt.WSMTSegmentTranslation;
 import com.idiominc.wssdk.linguistic.WSLanguage;
 import com.idiominc.wssdk.linguistic.WSLanguagePair;
 import com.idiominc.wssdk.linguistic.WSLinguisticManager;
@@ -77,6 +78,11 @@ public class WSLiltMTAdapter extends WSMTAdapterComponent {
     }
 
     @Override
+    public boolean updatable() {
+        return true;
+    }
+
+    @Override
     public void translate(WSContext context, WSMTRequest[] mtRequests, WSLanguage srcLang, WSLanguage tgtLang) {
         try {
             // Find a memory for these languages
@@ -88,6 +94,22 @@ public class WSLiltMTAdapter extends WSMTAdapterComponent {
         }
         catch (IOException e) {
             throw new WSMTAdapterRuntimeException("Failed to translate using Lilt MT", e);
+        }
+    }
+
+    @Override
+    public boolean updateMT(WSContext context, WSMTSegmentTranslation[] translations, WSLanguage srcLang,
+            WSLanguage tgtLang) {
+        try {
+            Memory mem = findMemoryForLanguagePair(srcLang, tgtLang);
+            LOG.warn("Using Lilt memory " + mem.id + " to update " + srcLang.getName() + " --> " + tgtLang.getName());
+            for (WSMTSegmentTranslation translation : translations) {
+                getLiltAPI().updateTranslation(mem.id, translation.getSource(), translation.getTarget());
+            }
+            return true;
+        }
+        catch (IOException e) {
+            throw new WSMTAdapterRuntimeException("Failed to update Lilt MT", e);
         }
     }
 

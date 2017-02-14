@@ -2,6 +2,7 @@ package com.spartansoftwareinc.lilt.api;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Scanner;
@@ -11,7 +12,10 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.entity.StringEntity;
 import org.apache.log4j.Logger;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
 
 public class LiltAPIImpl implements LiltAPI {
@@ -111,13 +115,24 @@ public class LiltAPIImpl implements LiltAPI {
     }
 
     @Override
-    public void updateTranslation(long memoryId, String source, String target) {
-        // TODO Auto-generated method stub
-        
+    public void updateTranslation(long memoryId, String source, String target) throws IOException {
+        JSONObject json = new UpdateMemoryRequest(memoryId, source, target).toJSON();
+        StringWriter sw = new StringWriter();
+        json.writeJSONString(sw);
+        LOG.warn("Updating Lilt: " + sw.toString());
+        HttpUriRequest request = post("/mem")
+                .setEntity(new StringEntity(sw.toString(), StandardCharsets.UTF_8))
+                .build();
+        String raw = getRawJSONResponse(request);
+        LOG.warn("Updat response: " + raw);
     }
 
     protected RequestBuilder get(String endpoint) {
         return RequestBuilder.get(API_BASE + endpoint).addParameter("apikey", apiKey);
+    }
+
+    protected RequestBuilder post(String endpoint) {
+        return RequestBuilder.post(API_BASE + endpoint).addParameter("apikey", apiKey);
     }
 
     protected HttpResponse execute(HttpUriRequest request) throws IOException {
