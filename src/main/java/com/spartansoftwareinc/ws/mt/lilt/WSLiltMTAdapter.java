@@ -92,7 +92,7 @@ public class WSLiltMTAdapter extends WSMTAdapterComponent {
         try {
             // Find a memory for these languages
             Memory mem = findMemoryForLanguagePair(srcLang, tgtLang);
-            LOG.warn("Using Lilt memory " + mem.id + " to translate " + srcLang.getName() + " --> " + tgtLang.getName());
+            LOG.info("Using Lilt memory " + mem.id + " to translate " + srcLang.getName() + " --> " + tgtLang.getName());
             for (WSMTRequest request : mtRequests) {
                 handleRequest(mem, request);
             }
@@ -107,9 +107,16 @@ public class WSLiltMTAdapter extends WSMTAdapterComponent {
             WSLanguage tgtLang) {
         try {
             Memory mem = findMemoryForLanguagePair(srcLang, tgtLang);
-            LOG.warn("Using Lilt memory " + mem.id + " to update " + srcLang.getName() + " --> " + tgtLang.getName());
+            LOG.info("Using Lilt memory " + mem.id + " to update " + srcLang.getName() + " --> " + tgtLang.getName());
+            int success = 0;
             for (WSMTSegmentTranslation translation : translations) {
-                getLiltAPI().updateTranslation(mem.id, translation.getSource(), translation.getTarget());
+                if (getLiltAPI().updateTranslation(mem.id, translation.getSource(), translation.getTarget())) {
+                    success++;
+                }
+            }
+            if (success < translations.length) {
+                LOG.warn("Updating memory " + mem.id + ", only " + success + " of " +
+                         translations.length + " translations updated");
             }
             return true;
         }

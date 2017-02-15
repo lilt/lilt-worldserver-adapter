@@ -115,17 +115,17 @@ public class LiltAPIImpl implements LiltAPI {
     }
 
     @Override
-    public void updateTranslation(long memoryId, String source, String target) throws IOException {
+    public boolean updateTranslation(long memoryId, String source, String target) throws IOException {
         JSONObject json = new UpdateMemoryRequest(memoryId, source, target).toJSON();
         StringWriter sw = new StringWriter();
         json.writeJSONString(sw);
-        LOG.warn("Updating Lilt: " + sw.toString());
+        LOG.info("Updating Lilt: " + sw.toString());
         HttpUriRequest request = post("/mem")
                 .addHeader("Content-Type", "application/json")
                 .setEntity(new StringEntity(sw.toString(), StandardCharsets.UTF_8))
                 .build();
         String raw = getRawJSONResponse(request);
-        LOG.warn("Updat response: " + raw);
+        return (raw != null);
     }
 
     protected RequestBuilder get(String endpoint) {
