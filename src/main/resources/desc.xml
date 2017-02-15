@@ -1,3 +1,4 @@
 <components>
     <mt_adapter class="com.spartansoftwareinc.ws.mt.lilt.WSLiltMTAdapter" />
+    <auto_action class="com.spartansoftwareinc.ws.mt.UpdateMTAutomaticAction" />
 </components>

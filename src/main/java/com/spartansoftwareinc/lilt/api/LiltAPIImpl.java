@@ -121,6 +121,7 @@ public class LiltAPIImpl implements LiltAPI {
         json.writeJSONString(sw);
         LOG.warn("Updating Lilt: " + sw.toString());
         HttpUriRequest request = post("/mem")
+                .addHeader("Content-Type", "application/json")
                 .setEntity(new StringEntity(sw.toString(), StandardCharsets.UTF_8))
                 .build();
         String raw = getRawJSONResponse(request);
