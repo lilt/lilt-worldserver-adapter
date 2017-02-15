@@ -24,6 +24,7 @@ import com.idiominc.wssdk.linguistic.WSLanguagePair;
 import com.idiominc.wssdk.linguistic.WSLinguisticManager;
 import com.idiominc.wssdk.mt.WSMTAdapterRuntimeException;
 import com.idiominc.wssdk.mt.WSMTResult;
+import com.spartansoftwareinc.lilt.Version;
 import com.spartansoftwareinc.lilt.api.LiltAPI;
 import com.spartansoftwareinc.lilt.api.LiltAPIImpl;
 import com.spartansoftwareinc.lilt.api.Memory;
@@ -34,20 +35,24 @@ public class WSLiltMTAdapter extends WSMTAdapterComponent {
     private WSLiltMTAdapterConfigurationData configurationData;
     private LiltAPI api;
 
+    @Override
     public String getDescription() {
         return "MT Adapter for Lilt";
     }
 
+    @Override
     public WSVersion getMinimumWorldServerVersion() {
         return new WSVersion(9, 0, 0);
     }
 
+    @Override
     public String getName() {
         return "Lilt MT Adapter";
     }
 
+    @Override
     public String getVersion() {
-        return "1.0"; // TODO
+        return Version.BANNER;
     }
 
     @Override

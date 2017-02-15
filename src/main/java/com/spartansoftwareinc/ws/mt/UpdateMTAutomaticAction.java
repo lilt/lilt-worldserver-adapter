@@ -10,6 +10,7 @@ import com.idiominc.wssdk.component.autoaction.WSActionResult;
 import com.idiominc.wssdk.component.autoaction.WSTaskAutomaticAction;
 import com.idiominc.wssdk.mt.WSMTService;
 import com.idiominc.wssdk.workflow.WSTask;
+import com.spartansoftwareinc.lilt.Version;
 
 public class UpdateMTAutomaticAction extends WSTaskAutomaticAction {
     @Override
@@ -21,6 +22,11 @@ public class UpdateMTAutomaticAction extends WSTaskAutomaticAction {
     @Override
     public String getName() {
         return "Update Machine Translation";
+    }
+
+    @Override
+    public String getVersion() {
+        return Version.BANNER;
     }
 
     @Override
