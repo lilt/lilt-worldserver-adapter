@@ -26,6 +26,7 @@ import com.idiominc.wssdk.mt.WSMTAdapterRuntimeException;
 import com.idiominc.wssdk.mt.WSMTResult;
 import com.spartansoftwareinc.lilt.Version;
 import com.spartansoftwareinc.lilt.api.LiltAPI;
+import com.spartansoftwareinc.lilt.api.LiltAPIFactory;
 import com.spartansoftwareinc.lilt.api.LiltAPIImpl;
 import com.spartansoftwareinc.lilt.api.Memory;
 

@@ -1,0 +1,6 @@
+<tr>
+    <td class="prop_table_left_side">${label}:</td>
+    <td class="prop_table_right_side">
+        <select name="memoryList[]" id="memoryList" style="width: 100%%" multiple>%s</select>
+    </td>
+</tr>

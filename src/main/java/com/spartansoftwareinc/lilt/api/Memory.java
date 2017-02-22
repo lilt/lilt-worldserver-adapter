@@ -10,7 +10,7 @@ public class Memory {
     public final String name;
     public final long nexamples;
 
-    Memory(long id, String srcLang, String tgtLang, String name, long nexamples) {
+    public Memory(long id, String srcLang, String tgtLang, String name, long nexamples) {
         this.id = id;
         this.srcLang = srcLang;
         this.tgtLang = tgtLang;
