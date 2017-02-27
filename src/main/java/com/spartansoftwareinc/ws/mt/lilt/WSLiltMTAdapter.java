@@ -26,7 +26,6 @@ import com.idiominc.wssdk.mt.WSMTAdapterRuntimeException;
 import com.idiominc.wssdk.mt.WSMTResult;
 import com.spartansoftwareinc.lilt.Version;
 import com.spartansoftwareinc.lilt.api.LiltAPI;
-import com.spartansoftwareinc.lilt.api.LiltAPIFactory;
 import com.spartansoftwareinc.lilt.api.LiltAPIImpl;
 import com.spartansoftwareinc.lilt.api.Memory;
 
@@ -58,29 +57,20 @@ public class WSLiltMTAdapter extends WSMTAdapterComponent {
 
     @Override
     public WSLanguagePair[] getSupportedLanguagePairs(WSContext context) {
-        try {
-            Set<String> memoryIds = new HashSet<>(getConfiguration().getMemoryIds());
-            List<Memory> memories = getLiltAPI().getAllMemories();
-            WSLinguisticManager lingManager = context.getLinguisticManager();
-            List<WSLanguagePair> pairs = new ArrayList<>();
-            for (Memory mem : memories) {
-                if (memoryIds.contains(String.valueOf(mem.id))) {
-                    WSLanguage src = getWSLanguageForLanguageCode(lingManager, mem.srcLang);
-                    WSLanguage tgt = getWSLanguageForLanguageCode(lingManager, mem.tgtLang);
-                    if (src == null || tgt == null) {
-                        LOG.warn("Could not map language pair " + mem.srcLang + " --> " + mem.tgtLang +
-                                 " for Lilt memory " + mem.id + " to WorldServer");
-                        continue;
-                    }
-                    pairs.add(new WSLanguagePair(src, tgt));
-                }
+        Set<Memory> memories = new HashSet<>(getConfiguration().getMemories());
+        WSLinguisticManager lingManager = context.getLinguisticManager();
+        List<WSLanguagePair> pairs = new ArrayList<>();
+        for (Memory mem : memories) {
+            WSLanguage src = getWSLanguageForLanguageCode(lingManager, mem.srcLang);
+            WSLanguage tgt = getWSLanguageForLanguageCode(lingManager, mem.tgtLang);
+            if (src == null || tgt == null) {
+                LOG.warn("Could not map language pair " + mem.srcLang + " --> " + mem.tgtLang +
+                         " for Lilt memory " + mem.id + " to WorldServer");
+                continue;
             }
-            return pairs.toArray(new WSLanguagePair[pairs.size()]);
+            pairs.add(new WSLanguagePair(src, tgt));
         }
-        catch (IOException e) {
-            LOG.error("Could not obtain available memories from Lilt", e);
-            return new WSLanguagePair[0];
-        }
+        return pairs.toArray(new WSLanguagePair[pairs.size()]);
     }
 
     @Override
@@ -143,20 +133,13 @@ public class WSLiltMTAdapter extends WSMTAdapterComponent {
     }
 
     protected Memory findMemoryForLanguagePair(WSLanguage srcWSLang, WSLanguage tgtWSLang) throws IOException {
-        try {
-            List<Memory> memories = getLiltAPI().getAllMemories();
-            String srcLang = srcWSLang.getLocale().getLanguage();
-            String tgtLang = tgtWSLang.getLocale().getLanguage();
-            for (Memory mem : memories) {
-                if (mem.supportsLanguagePair(srcLang, tgtLang)) {
-                    return mem;
-                }
+        Set<Memory> memories = getConfiguration().getMemories(); 
+        String srcLang = srcWSLang.getLocale().getLanguage();
+        String tgtLang = tgtWSLang.getLocale().getLanguage();
+        for (Memory mem : memories) {
+            if (mem.supportsLanguagePair(srcLang, tgtLang)) {
+                return mem;
             }
-        }
-        catch (IOException e) {
-            LOG.error("Encountered an error finding memory for language pair " +
-                      srcWSLang.getName() + " -> " + tgtWSLang.getName(), e);
-            throw e;
         }
         throw new WSMTAdapterRuntimeException("Could not find a configured Lilt memory for language pair " +
                 srcWSLang.getName() + " -> " + tgtWSLang.getName());

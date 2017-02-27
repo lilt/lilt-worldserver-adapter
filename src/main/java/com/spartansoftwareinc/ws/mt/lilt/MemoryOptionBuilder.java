@@ -6,35 +6,31 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.idiominc.wssdk.WSRuntimeException;
-import com.spartansoftwareinc.lilt.api.LiltAPIFactory;
 import com.spartansoftwareinc.lilt.api.Memory;
 
 class MemoryOptionBuilder {
     public static final Logger LOG = Logger.getLogger(MemoryOptionBuilder.class);
 
-    private LiltAPIFactory apiFactory;
-
-    MemoryOptionBuilder(LiltAPIFactory apiFactory) {
-        this.apiFactory = apiFactory;
+    MemoryOptionBuilder() {
     }
 
-    public List<UIMultiSelect.OptionValue> buildMemoryOptionsList(String apiKey, Set<String> memoryIds) {
+    public List<UIMultiSelect.OptionValue> buildMemoryOptionsList(Set<Memory> memories, List<Memory> liveMemories) {
         List<UIMultiSelect.OptionValue> options = new ArrayList<>();
-        if (memoryIds.size() > 0 && !"".equals(apiKey)) {
-            List<Memory> memories = getMemories(apiKey);
-            for (String s : memoryIds) {
-                Memory mem = removeMemoryById(memories, s);
+        if (memories.size() > 0 && liveMemories.size() > 0) {
+            // Filter out any memories that have been removed on the server side
+            for (Memory m : memories) {
+                Memory mem = removeMemoryById(liveMemories, m.id);
+                String s = String.valueOf(m.id);
                 if (mem != null) {
                     String label = mem.name + " (" + mem.srcLang + " -> " + mem.tgtLang + ")";
                     options.add(new UIMultiSelect.OptionValue(s, label, true));
                 }
                 else {
-                    LOG.warn("Unable to find memory with id " + s + " for apiKey " + apiKey);
+                    LOG.warn("Unable to find memory with id " + s);
                 }
             }
             // Add any unselected ones
-            for (Memory mem : memories) {
+            for (Memory mem : liveMemories) {
                 String label = mem.name + " (" + mem.srcLang + " -> " + mem.tgtLang + ")";
                 options.add(new UIMultiSelect.OptionValue(String.valueOf(mem.id), label, false));
             }
@@ -42,22 +38,11 @@ class MemoryOptionBuilder {
         return options;
     }
 
-    private List<Memory> getMemories(String apiKey) {
-        try {
-            LOG.warn("apiFactory " + apiFactory);
-            LOG.warn("apiKey: " + apiKey);
-            LOG.warn("api " + apiFactory.create(apiKey));
-            return apiFactory.create(apiKey).getAllMemories();
-        }
-        catch (Exception e) {
-            throw new WSRuntimeException(e);
-        }
-    }
 
-    private Memory removeMemoryById(List<Memory> memories, String id) {
+    private Memory removeMemoryById(List<Memory> memories, long id) {
         for (int i = 0; i < memories.size(); i++) {
             Memory mem = memories.get(i);
-            if (String.valueOf(mem.id).equals(id)) {
+            if (mem.id == id) {
                 return memories.remove(i);
             }
         }

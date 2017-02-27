@@ -3,7 +3,11 @@ package com.spartansoftwareinc.lilt.api;
 import org.json.simple.JSONObject;
 import static com.spartansoftwareinc.lilt.api.JSONUtil.*;
 
-public class Memory {
+import java.io.Serializable;
+
+public class Memory implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     public final long id;
     public final String srcLang;
     public final String tgtLang;

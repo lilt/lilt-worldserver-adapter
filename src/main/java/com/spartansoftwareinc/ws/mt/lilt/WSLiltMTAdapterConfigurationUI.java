@@ -21,6 +21,7 @@ import com.idiominc.wssdk.component.WSComponentConfigurationUI;
 import com.spartansoftwareinc.lilt.api.LiltAPI;
 import com.spartansoftwareinc.lilt.api.LiltAPIFactory;
 import com.spartansoftwareinc.lilt.api.LiltAPIImpl;
+import com.spartansoftwareinc.lilt.api.Memory;
 import com.spartansoftwareinc.ws.okapi.base.ui.UITable;
 import com.spartansoftwareinc.ws.okapi.base.ui.UIUtil;
 
@@ -74,8 +75,10 @@ public class WSLiltMTAdapterConfigurationUI extends WSComponentConfigurationUI {
             sb.append(UIUtil.escapeHtml(error));
             sb.append("</p>");
         }
-        List<UIMultiSelect.OptionValue> options = new MemoryOptionBuilder(apiFactory). 
-                        buildMemoryOptionsList(configData.getApiKey(), configData.getMemoryIds());
+        List<Memory> liveMemories = !"".equals(configData.getApiKey()) ? getAllMemories(apiKey) :
+                                    new ArrayList<Memory>();
+        List<UIMultiSelect.OptionValue> options = new MemoryOptionBuilder(). 
+                        buildMemoryOptionsList(configData.getMemories(), liveMemories);
         UITable table = new UITable()
                 .add(new UIStaticText(LABEL_INSTRUCTIONS, INSTRUCTIONS_TEXT))
                 .add(new UITextField(LABEL_API_KEY, API_KEY, apiKey, getLoadMemoryButton()))
@@ -114,15 +117,29 @@ public class WSLiltMTAdapterConfigurationUI extends WSComponentConfigurationUI {
         Set<String> memoryIds = new LinkedHashSet<String>(Arrays.asList(ids));
         String errors = null;
 
+        Set<Memory> memories = new LinkedHashSet<>();
+        List<String> invalidMemoryIds = new ArrayList<>();
         if (apiKey == null || apiKey.length() < 1) {
             errors = addError(LABEL_API_KEY, errors);
+            invalidMemoryIds.addAll(memoryIds);
         }
-        List<String> invalidMemoryIds = new ArrayList<>();
-        for (String id : memoryIds) {
-            if (!isLong(id)) {
-                invalidMemoryIds.add(id);
+        else {
+            List<Memory> liveMemories = getAllMemories(apiKey);
+            for (String id : memoryIds) {
+                if (!isLong(id)) {
+                    invalidMemoryIds.add(id);
+                    continue;
+                }
+                long lid = Long.valueOf(id);
+                for (Memory m : liveMemories) {
+                    if (lid == m.id) {
+                        memories.add(m);
+                        break;
+                    }
+                }
             }
         }
+
         if (invalidMemoryIds.size() > 0) {
             errors = addError(LABEL_MEMORIES, errors);
         }
@@ -138,7 +155,7 @@ public class WSLiltMTAdapterConfigurationUI extends WSComponentConfigurationUI {
         }
 
         configData.setApiKey(apiKey);
-        configData.setMemoryIds(memoryIds);
+        configData.setMemories(memories);
         configData.setMatchScore(matchScore);
         return configData;
     }
@@ -164,6 +181,15 @@ public class WSLiltMTAdapterConfigurationUI extends WSComponentConfigurationUI {
         }
         catch (NumberFormatException e) {
             return -1;
+        }
+    }
+
+    private List<Memory> getAllMemories(String apiKey) {
+        try {
+            return apiFactory.create(apiKey).getAllMemories();
+        }
+        catch (Exception e) {
+            throw new WSRuntimeException(e);
         }
     }
 }
