@@ -22,7 +22,7 @@ class MemoryOptionBuilder {
                 Memory mem = removeMemoryById(liveMemories, m.id);
                 String s = String.valueOf(m.id);
                 if (mem != null) {
-                    String label = mem.name + " (" + mem.srcLang + " -> " + mem.tgtLang + ")";
+                    String label = mem.name + " (" + mem.srcLang + " -> " + mem.trgLang + ")";
                     options.add(new UIMultiSelect.OptionValue(s, label, true));
                 }
                 else {
@@ -31,7 +31,7 @@ class MemoryOptionBuilder {
             }
             // Add any unselected ones
             for (Memory mem : liveMemories) {
-                String label = mem.name + " (" + mem.srcLang + " -> " + mem.tgtLang + ")";
+                String label = mem.name + " (" + mem.srcLang + " -> " + mem.trgLang + ")";
                 options.add(new UIMultiSelect.OptionValue(String.valueOf(mem.id), label, false));
             }
         }

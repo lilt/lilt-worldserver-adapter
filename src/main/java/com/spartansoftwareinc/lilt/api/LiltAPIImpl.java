@@ -19,13 +19,13 @@ import org.json.simple.parser.ParseException;
 
 public class LiltAPIImpl implements LiltAPI {
     static final Logger LOG = Logger.getLogger(LiltAPIImpl.class);
-    static final String API_BASE = "https://lilt.com/1";
+    static final String API_BASE = "https://lilt.com/2";
 
     private HttpClient client;
     private String apiKey;
     private LiltObjectParser parser = new LiltObjectParser();
 
-    
+
     public LiltAPIImpl(HttpClient client, String apiKey) {
         this.client = client;
         this.apiKey = apiKey;
@@ -34,8 +34,8 @@ public class LiltAPIImpl implements LiltAPI {
     @Override
     public Memory getMemory(long memoryId) throws IOException {
         try {
-            HttpUriRequest request = get("/mem")
-                    .addParameter("memory_id", String.valueOf(memoryId))
+            HttpUriRequest request = get("/memories")
+                    .addParameter("id", String.valueOf(memoryId))
                     .build();
             String raw = getRawJSONResponse(request);
             return raw != null ? parser.parseMemory(raw) : null;
@@ -69,7 +69,7 @@ public class LiltAPIImpl implements LiltAPI {
     @Override
     public List<Memory> getAllMemories() throws IOException {
         try {
-            String raw = getRawJSONResponse(get("/mem").build());
+            String raw = getRawJSONResponse(get("/memories").build());
             return raw != null ? parser.parseMemories(raw) : null;
         }
         catch (ParseException e) {
@@ -81,7 +81,7 @@ public class LiltAPIImpl implements LiltAPI {
     @Override
     public List<String> getSimpleTranslation(long memoryId, String source, int count) throws IOException {
         try {
-            HttpUriRequest request = get("/tr")
+            HttpUriRequest request = get("/translate")
                     .addParameter("memory_id", String.valueOf(memoryId))
                     .addParameter("source", source)
                     .addParameter("n", String.valueOf(count))
@@ -98,7 +98,7 @@ public class LiltAPIImpl implements LiltAPI {
     @Override
     public List<Translation> getRichTranslation(long memoryId, String source, int count) throws IOException {
         try {
-            HttpUriRequest request = get("/tr")
+            HttpUriRequest request = get("/translate")
                     .addParameter("memory_id", String.valueOf(memoryId))
                     .addParameter("source", source)
                     .addParameter("n", String.valueOf(count))
@@ -119,7 +119,7 @@ public class LiltAPIImpl implements LiltAPI {
         StringWriter sw = new StringWriter();
         json.writeJSONString(sw);
         LOG.info("Updating Lilt: " + sw.toString());
-        HttpUriRequest request = post("/mem")
+        HttpUriRequest request = post("/segments")
                 .addHeader("Content-Type", "application/json")
                 .setEntity(new StringEntity(sw.toString(), StandardCharsets.UTF_8))
                 .build();

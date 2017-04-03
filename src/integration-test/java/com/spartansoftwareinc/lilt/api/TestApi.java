@@ -1,6 +1,8 @@
 package com.spartansoftwareinc.lilt.api;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 import java.util.List;
 
@@ -31,9 +33,9 @@ public class TestApi {
         Memory mem = api.getMemory(9068);
         assertEquals(9068, mem.id);
         assertEquals("en", mem.srcLang);
-        assertEquals("fr", mem.tgtLang);
+        assertEquals("fr", mem.trgLang);
         assertEquals("Test Memory", mem.name);
-        assertEquals(0, mem.nexamples);
+        assertEquals(0, mem.numSegments);
         assertNull(api.getMemory(10));
     }
 
@@ -44,9 +46,9 @@ public class TestApi {
         Memory mem = memories.get(0);
         assertEquals(9068, mem.id);
         assertEquals("en", mem.srcLang);
-        assertEquals("fr", mem.tgtLang);
+        assertEquals("fr", mem.trgLang);
         assertEquals("Test Memory", mem.name);
-        assertEquals(0, mem.nexamples);
+        assertEquals(0, mem.numSegments);
     }
 
     @Test

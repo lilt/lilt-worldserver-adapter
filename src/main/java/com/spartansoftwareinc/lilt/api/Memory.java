@@ -1,37 +1,39 @@
 package com.spartansoftwareinc.lilt.api;
 
-import org.json.simple.JSONObject;
-import static com.spartansoftwareinc.lilt.api.JSONUtil.*;
+import static com.spartansoftwareinc.lilt.api.JSONUtil.requireLong;
+import static com.spartansoftwareinc.lilt.api.JSONUtil.requireString;
 
 import java.io.Serializable;
+
+import org.json.simple.JSONObject;
 
 public class Memory implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public final long id;
     public final String srcLang;
-    public final String tgtLang;
+    public final String trgLang;
     public final String name;
-    public final long nexamples;
+    public final long numSegments;
 
-    public Memory(long id, String srcLang, String tgtLang, String name, long nexamples) {
+    public Memory(long id, String srcLang, String trgLang, String name, long numSegments) {
         this.id = id;
         this.srcLang = srcLang;
-        this.tgtLang = tgtLang;
+        this.trgLang = trgLang;
         this.name = name;
-        this.nexamples = nexamples;
+        this.numSegments = numSegments;
     }
 
-    public boolean supportsLanguagePair(String srcLang, String tgtLang) {
-        return srcLang.equals(this.srcLang) && tgtLang.equals(this.tgtLang);
+    public boolean supportsLanguagePair(String srcLang, String trgLang) {
+        return srcLang.equals(this.srcLang) && trgLang.equals(this.trgLang);
     }
 
     static Memory fromJSON(JSONObject json) {
-        Long id = requireLong(json, "memory_id");
+        Long id = requireLong(json, "id");
         String srcLang = requireString(json, "srclang");
-        String tgtLang = requireString(json, "tgtlang");
+        String trgLang = requireString(json, "trglang");
         String name = requireString(json, "name");
-        Long nexamples = requireLong(json, "nexamples");
-        return new Memory(id, srcLang, tgtLang, name, nexamples);
+        Long numSegments = requireLong(json, "num_segments");
+        return new Memory(id, srcLang, trgLang, name, numSegments);
     }
 }

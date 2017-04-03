@@ -1,6 +1,12 @@
 package com.spartansoftwareinc.lilt.api;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.util.List;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -11,10 +17,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import static org.mockito.Mockito.*;
-
-import java.io.ByteArrayInputStream;
-import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestLiltAPIImpl {
@@ -34,22 +36,22 @@ public class TestLiltAPIImpl {
     @Test
     public void testGetMemory() throws Exception {
         String json =
-                "{\"memory_id\":1234,\"srclang\":\"en\",\"tgtlang\":\"fr\",\"name\":\"Test Memory\",\"nexamples\":0}";
+                "{\"id\":1234,\"srclang\":\"en\",\"trglang\":\"fr\",\"name\":\"Test Memory\",\"num_segments\":0}";
         setupResponse(json);
 
         LiltAPI api = new LiltAPIImpl(client, "abcdef");
         Memory mem = api.getMemory(1234);
         assertEquals(1234, mem.id);
         assertEquals("en", mem.srcLang);
-        assertEquals("fr", mem.tgtLang);
+        assertEquals("fr", mem.trgLang);
         assertEquals("Test Memory", mem.name);
-        assertEquals(0, mem.nexamples);
+        assertEquals(0, mem.numSegments);
     }
 
     @Test
     public void testGetAllMemories() throws Exception {
         String json =
-                "[{\"memory_id\":1234,\"srclang\":\"en\",\"tgtlang\":\"fr\",\"name\":\"Test Memory\",\"nexamples\":0}]";
+                "[{\"id\":1234,\"srclang\":\"en\",\"trglang\":\"fr\",\"name\":\"Test Memory\",\"num_segments\":0}]";
         setupResponse(json);
         LiltAPI api = new LiltAPIImpl(client, "abcdef");
         List<Memory> memories = api.getAllMemories();
@@ -57,9 +59,9 @@ public class TestLiltAPIImpl {
         Memory mem = memories.get(0);
         assertEquals(1234, mem.id);
         assertEquals("en", mem.srcLang);
-        assertEquals("fr", mem.tgtLang);
+        assertEquals("fr", mem.trgLang);
         assertEquals("Test Memory", mem.name);
-        assertEquals(0, mem.nexamples);
+        assertEquals(0, mem.numSegments);
     }
 
     @Test

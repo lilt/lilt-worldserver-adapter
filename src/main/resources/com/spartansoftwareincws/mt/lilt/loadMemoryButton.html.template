@@ -3,14 +3,14 @@
 function loadMemories() {
     var key = $('input[name=apiKey]').val();
     if (key != null && key != "") {
-        var url = "https://lilt.com/1/mem?apikey=" + key;
+        var url = "https://lilt.com/2/memories?apikey=" + key;
         $.get(url, function(data) {
             var select = $('#memoryList');
             for (var i in data) {
                var m = data[i];
-               if (select.children('option').filter('[value=' + m.memory_id + ']').length == 0) {
-                   var s =  m.name + " (" + m.srclang + " -> " + m.tgtlang + ")";
-                   var opt = $("<option>", {"value" : m.memory_id}).append(s);
+               if (select.children('option').filter('[value=' + m.id + ']').length == 0) {
+                   var s =  m.name + " (" + m.srclang + " -> " + m.trglang + ")";
+                   var opt = $("<option>", {"value" : m.id}).append(s);
                    select.append(opt);
                }
             }

@@ -62,9 +62,9 @@ public class WSLiltMTAdapter extends WSMTAdapterComponent {
         List<WSLanguagePair> pairs = new ArrayList<>();
         for (Memory mem : memories) {
             WSLanguage src = getWSLanguageForLanguageCode(lingManager, mem.srcLang);
-            WSLanguage tgt = getWSLanguageForLanguageCode(lingManager, mem.tgtLang);
+            WSLanguage tgt = getWSLanguageForLanguageCode(lingManager, mem.trgLang);
             if (src == null || tgt == null) {
-                LOG.warn("Could not map language pair " + mem.srcLang + " --> " + mem.tgtLang +
+                LOG.warn("Could not map language pair " + mem.srcLang + " --> " + mem.trgLang +
                          " for Lilt memory " + mem.id + " to WorldServer");
                 continue;
             }

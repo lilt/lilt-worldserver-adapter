@@ -16,7 +16,7 @@ public class UpdateMemoryRequest {
     @SuppressWarnings("unchecked")
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
-        json.put("memory_id", (Long)memoryId);
+        json.put("memory_id", memoryId);
         json.put("source", source);
         json.put("target", target);
         return json;
