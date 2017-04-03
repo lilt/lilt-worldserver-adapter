@@ -28,12 +28,15 @@ import com.spartansoftwareinc.lilt.Version;
 import com.spartansoftwareinc.lilt.api.LiltAPI;
 import com.spartansoftwareinc.lilt.api.LiltAPIImpl;
 import com.spartansoftwareinc.lilt.api.Memory;
+import com.spartansoftwareinc.ws.mt.okapi.MTRequestConverter;
 
 public class WSLiltMTAdapter extends WSMTAdapterComponent {
     public static final Logger LOG = Logger.getLogger(WSLiltMTAdapter.class);
 
     private WSLiltMTAdapterConfigurationData configurationData;
     private LiltAPI api;
+
+    private MTRequestConverter converter = new MTRequestConverter();
 
     @Override
     public String getDescription() {
@@ -101,7 +104,11 @@ public class WSLiltMTAdapter extends WSMTAdapterComponent {
             LOG.info("Using Lilt memory " + mem.id + " to update " + srcLang.getName() + " --> " + tgtLang.getName());
             int success = 0;
             for (WSMTSegmentTranslation translation : translations) {
-                if (getLiltAPI().updateTranslation(mem.id, translation.getSource(), translation.getTarget())) {
+                String sourceWithCodeMarkup = converter.addCodeMarkup(translation.getSource());
+                LOG.info("Translation source: Converted [" + translation.getSource() + "] --> [" + sourceWithCodeMarkup + "]");
+                String targetWithCodeMarkup = converter.addCodeMarkup(translation.getTarget());
+                LOG.info("Translation target: Converted [" + translation.getTarget() + "] --> [" + targetWithCodeMarkup + "]");
+                if (getLiltAPI().updateTranslation(mem.id, sourceWithCodeMarkup, targetWithCodeMarkup)) {
                     success++;
                 }
             }
@@ -123,7 +130,7 @@ public class WSLiltMTAdapter extends WSMTAdapterComponent {
 
     @Override
     public boolean supportsPlaceholders() {
-        return false; // XXX for now
+        return true;
     }
 
     protected WSLanguage getWSLanguageForLanguageCode(WSLinguisticManager lingManager, String languageCode) {
@@ -133,7 +140,7 @@ public class WSLiltMTAdapter extends WSMTAdapterComponent {
     }
 
     protected Memory findMemoryForLanguagePair(WSLanguage srcWSLang, WSLanguage tgtWSLang) throws IOException {
-        Set<Memory> memories = getConfiguration().getMemories(); 
+        Set<Memory> memories = getConfiguration().getMemories();
         String srcLang = srcWSLang.getLocale().getLanguage();
         String tgtLang = tgtWSLang.getLocale().getLanguage();
         for (Memory mem : memories) {
@@ -146,9 +153,13 @@ public class WSLiltMTAdapter extends WSMTAdapterComponent {
     }
 
     protected void handleRequest(Memory mem, WSMTRequest request) throws IOException {
-        List<String> response = getLiltAPI().getSimpleTranslation(mem.id, request.getSource(), 1);
+        String sourceWithCodeMarkup = converter.addCodeMarkup(request.getSource());
+        LOG.info("Request: Converted [" + request.getSource() + "] --> [" + sourceWithCodeMarkup + "]");
+        List<String> response = getLiltAPI().getSimpleTranslation(mem.id, sourceWithCodeMarkup, 1);
         WSMTResult[] results = new WSMTResult[1];
-        results[0] = new WSMTResult(request.getSource(), response.get(0), getConfiguration().getMatchScore());
+        String translation = converter.removeCodeMarkup(response.get(0));
+        LOG.info("Result: Converted [" + response.get(0) + "] --> [" + translation + "]");
+        results[0] = new WSMTResult(request.getSource(), translation, getConfiguration().getMatchScore());
         request.setResults(results);
     }
 
