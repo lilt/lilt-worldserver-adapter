@@ -5,11 +5,11 @@ import java.util.regex.Pattern;
 
 public class MTRequestConverter {
     private static final Pattern WS_PLACEHOLDER = Pattern.compile("\\{([0-9]+)\\}");
-    private static final Pattern CODE_MARKUP = Pattern.compile("<span\\s+ws_id=\"(\\d+)\">(\\s*</span>)?");
+    private static final Pattern CODE_MARKUP = Pattern.compile("<span\\s+ws_id=\"(\\d+)\"/>");
     private static final Pattern TRAILING_CODE_MARKUP = Pattern.compile("</span>");
 
     /**
-     * Replace WorldServer placeholder codes in &lt;span&gt;...&lt;/span&gt; markup
+     * Replace WorldServer placeholder codes in &lt;span/&gt; markup
      * in order to protect them from translation.
      */
     public String addCodeMarkup(String source) {
@@ -20,7 +20,7 @@ public class MTRequestConverter {
             sb.append(source.substring(start, m.start()));
             sb.append("<span ws_id=\"");
             sb.append(m.group(1));
-            sb.append("\"></span>");
+            sb.append("\"/>");
             start = m.end();
         }
         sb.append(source.substring(start, source.length()));
