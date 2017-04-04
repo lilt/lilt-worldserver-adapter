@@ -26,7 +26,9 @@ class JSONUtil {
     }
 
     static Double requireDouble(JSONObject json, String key) {
-        return (Double)require(json, key);
+        // if we get a long, cast to double
+        Object obj = require(json, key);
+        return obj instanceof Long ? ((Long)obj).doubleValue() : (Double)obj;
     }
 
     private static Object require(JSONObject json, String key) {

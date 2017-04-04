@@ -1,6 +1,8 @@
 package com.spartansoftwareinc.lilt.api;
 
-import static com.spartansoftwareinc.lilt.api.JSONUtil.*;
+import static com.spartansoftwareinc.lilt.api.JSONUtil.requireBoolean;
+import static com.spartansoftwareinc.lilt.api.JSONUtil.requireDouble;
+import static com.spartansoftwareinc.lilt.api.JSONUtil.requireString;
 
 import org.json.simple.JSONObject;
 
@@ -11,11 +13,13 @@ import org.json.simple.JSONObject;
  */
 public class Translation {
     public final String target;
+    public final String targetWithTags;
     public final boolean isTMMatch;
     public final double score;
 
-    Translation(String target, double score, boolean isTMMatch) {
+    Translation(String target, String targetWithTags, double score, boolean isTMMatch) {
         this.target = target;
+        this.targetWithTags = targetWithTags;
         this.isTMMatch = isTMMatch;
         this.score = score;
     }
@@ -26,8 +30,15 @@ public class Translation {
      */
     static Translation fromJSON(JSONObject tInfo) {
         String target = requireString(tInfo, "target");
+        String targetWithTags = (String)tInfo.get("targetWithTags");
         double rawScore = requireDouble(tInfo, "score");
         boolean isMatch = requireBoolean(tInfo, "isTMMatch");
-        return new Translation(target, rawScore, isMatch);
+        return new Translation(target, targetWithTags, rawScore, isMatch);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Translation[target='%s', targetWithTags='%s', score=%s, isTMMatch=%s]",
+                target, targetWithTags, score, isTMMatch);
     }
 }

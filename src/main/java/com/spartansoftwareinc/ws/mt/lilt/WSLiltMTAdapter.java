@@ -28,6 +28,7 @@ import com.spartansoftwareinc.lilt.Version;
 import com.spartansoftwareinc.lilt.api.LiltAPI;
 import com.spartansoftwareinc.lilt.api.LiltAPIImpl;
 import com.spartansoftwareinc.lilt.api.Memory;
+import com.spartansoftwareinc.lilt.api.Translation;
 import com.spartansoftwareinc.ws.mt.okapi.MTRequestConverter;
 
 public class WSLiltMTAdapter extends WSMTAdapterComponent {
@@ -155,10 +156,11 @@ public class WSLiltMTAdapter extends WSMTAdapterComponent {
     protected void handleRequest(Memory mem, WSMTRequest request) throws IOException {
         String sourceWithCodeMarkup = converter.addCodeMarkup(request.getSource());
         LOG.info("Request: Converted [" + request.getSource() + "] --> [" + sourceWithCodeMarkup + "]");
-        List<String> response = getLiltAPI().getSimpleTranslation(mem.id, sourceWithCodeMarkup, 1);
+        List<Translation> response = getLiltAPI().getRichTranslation(mem.id, sourceWithCodeMarkup, 1);
         WSMTResult[] results = new WSMTResult[1];
-        String translation = converter.removeCodeMarkup(response.get(0));
-        LOG.info("Result: Converted [" + response.get(0) + "] --> [" + translation + "]");
+        String result = response.get(0).targetWithTags == null ? response.get(0).target : response.get(0).targetWithTags;
+        String translation = converter.removeCodeMarkup(result);
+        LOG.info("Result: Converted [" + result + "] --> [" + translation + "]");
         results[0] = new WSMTResult(request.getSource(), translation, getConfiguration().getMatchScore());
         request.setResults(results);
     }
