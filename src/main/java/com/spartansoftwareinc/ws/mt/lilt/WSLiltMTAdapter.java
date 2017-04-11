@@ -13,6 +13,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.Logger;
 
 import com.idiominc.wssdk.WSContext;
+import com.idiominc.wssdk.WSRuntimeException;
 import com.idiominc.wssdk.WSVersion;
 import com.idiominc.wssdk.component.WSComponentConfiguration;
 import com.idiominc.wssdk.component.WSComponentConfigurationUI;
@@ -156,9 +157,19 @@ public class WSLiltMTAdapter extends WSMTAdapterComponent {
     protected void handleRequest(Memory mem, WSMTRequest request) throws IOException {
         String sourceWithCodeMarkup = converter.addCodeMarkup(request.getSource());
         LOG.info("Request: Converted [" + request.getSource() + "] --> [" + sourceWithCodeMarkup + "]");
-        List<Translation> response = getLiltAPI().getRichTranslation(mem.id, sourceWithCodeMarkup, 1);
+        List<Translation> response = getLiltAPI().getRichTranslation(mem.id, sourceWithCodeMarkup, 10);
         WSMTResult[] results = new WSMTResult[1];
-        String result = response.get(0).targetWithTags == null ? response.get(0).target : response.get(0).targetWithTags;
+        Translation translationObj = null;
+        for (Translation t : response) {
+            if (!t.isTMMatch) {
+                translationObj = t;
+                break;
+            }
+        }
+        if (translationObj == null) {
+            throw new WSRuntimeException("Unable to get a translation from Lilt");
+        }
+        String result = translationObj.targetWithTags == null ? translationObj.target : translationObj.targetWithTags;
         String translation = converter.removeCodeMarkup(result);
         LOG.info("Result: Converted [" + result + "] --> [" + translation + "]");
         results[0] = new WSMTResult(request.getSource(), translation, getConfiguration().getMatchScore());
