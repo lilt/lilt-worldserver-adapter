@@ -167,7 +167,11 @@ public class WSLiltMTAdapter extends WSMTAdapterComponent {
             }
         }
         if (translationObj == null) {
-            throw new WSRuntimeException("Unable to get a translation from Lilt");
+            // We couldn't find a non-TM match in the first 10 results.  Since the API
+            // currently doesn't return code data in TM results, we're skipping this for now.
+            LOG.warn("Skipping segment that has no MT results available: " + request.getSource());
+            request.setResults(new WSMTResult[0]);
+            return;
         }
         String result = translationObj.targetWithTags == null ? translationObj.target : translationObj.targetWithTags;
         String translation = converter.removeCodeMarkup(result);
