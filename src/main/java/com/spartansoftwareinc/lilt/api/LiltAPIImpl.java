@@ -128,11 +128,11 @@ public class LiltAPIImpl implements LiltAPI {
     }
 
     protected RequestBuilder get(String endpoint) {
-        return RequestBuilder.get(API_BASE + endpoint).addParameter("apikey", apiKey);
+        return RequestBuilder.get(API_BASE + endpoint).addParameter("key", apiKey);
     }
 
     protected RequestBuilder post(String endpoint) {
-        return RequestBuilder.post(API_BASE + endpoint).addParameter("apikey", apiKey);
+        return RequestBuilder.post(API_BASE + endpoint).addParameter("key", apiKey);
     }
 
     protected HttpResponse execute(HttpUriRequest request) throws IOException {
