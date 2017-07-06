@@ -77,19 +77,17 @@ public class TestLiltAPIImpl {
     }
 
     @Test
-    public void testParseRichTranslation() throws Exception {
-        String json = "{ \"untokenizedSource\": \"Hello\", \"tokenizedSource\": \"Hello\", \"sourceDelimiters\": " +
-                "[ \"\", \"\" ], \"translation\": [ { \"target\": \"Bonjour\", \"align\": \"0-0\", \"score\": " +
-                "9.2579074e-05, \"targetDelimiters\": [ \"\", \"\" ], \"isTMMatch\": false, \"provenance\": \"0\", " +
-                "\"sourceContextHash\": 0 } ], \"procTime\": 18 }";
+    public void testParseRichTranslationWithDetokenization() throws Exception {
+        String json = JSONUtil.streamUtf8AsString(getClass().getResourceAsStream("/detokenize.json"));
         setupResponse(json);
         LiltAPI api = new LiltAPIImpl(client, "abcdef");
-        List<Translation> results = api.getRichTranslation(1234, "Hello", 1);
+        String src = "I went to the doctor's office";
+        List<Translation> results = api.getRichTranslation(1234, src, 1);
         assertEquals(1, results.size());
-        assertEquals("Bonjour", results.get(0).target);
+        assertEquals("I went to the doctor's office", results.get(0).target);
         assertFalse(results.get(0).isTMMatch);
     }
-
+    
     private void setupResponse(String rawJson) throws Exception {
         when(client.execute(any(HttpUriRequest.class))).thenReturn(response);
         when(response.getEntity()).thenReturn(entity);

@@ -1,5 +1,10 @@
 package com.spartansoftwareinc.lilt.api;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -37,5 +42,10 @@ class JSONUtil {
             throw new RuntimeException("Missing required field " + key);
         }
         return o;
+    }
+
+    static String streamUtf8AsString(InputStream is) throws IOException {
+        Scanner s = new Scanner(is, StandardCharsets.UTF_8.name()).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
     }
 }

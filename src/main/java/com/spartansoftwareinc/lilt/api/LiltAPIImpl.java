@@ -52,7 +52,7 @@ public class LiltAPIImpl implements LiltAPI {
         try (InputStream is = response.getEntity().getContent()) {
             // Read the stream immediately so that it is consumed even in error cases, in
             // order to prevent leaks
-            String rawJson = streamUtf8AsString(is);
+            String rawJson = JSONUtil.streamUtf8AsString(is);
             if (status.getStatusCode() == 200) {
                 return rawJson;
             }
@@ -146,8 +146,4 @@ public class LiltAPIImpl implements LiltAPI {
         return response;
     }
 
-    protected String streamUtf8AsString(InputStream is) throws IOException {
-        Scanner s = new Scanner(is, StandardCharsets.UTF_8.name()).useDelimiter("\\A");
-        return s.hasNext() ? s.next() : "";
-    }
 }
