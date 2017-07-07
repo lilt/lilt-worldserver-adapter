@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Scanner;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -85,6 +84,7 @@ public class LiltAPIImpl implements LiltAPI {
                     .addParameter("memory_id", String.valueOf(memoryId))
                     .addParameter("source", source)
                     .addParameter("n", String.valueOf(count))
+                    .addParameter("tm_matches", String.valueOf(false))
                     .build();
             String raw = getRawJSONResponse(request);
             return raw != null ? parser.parseSimpleTranslation(raw) : null;

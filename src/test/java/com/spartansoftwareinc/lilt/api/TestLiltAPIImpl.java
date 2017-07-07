@@ -87,7 +87,24 @@ public class TestLiltAPIImpl {
         assertEquals("I went to the doctor's office", results.get(0).target);
         assertFalse(results.get(0).isTMMatch);
     }
-    
+
+    @Test
+    public void testParseRichTranslationWithDetokenization2() throws Exception {
+        String json = "{\"untokenizedSource\":\"Let's go to Mike's house\",\"tokenizedSource\":\"Let 's go to " +
+                "Mike 's house\",\"sourceDelimiters\":[\"\",\"\",\" \",\" \",\" \",\"\",\" \",\"\"]," +
+                "\"translation\":[{\"score\":1.8206063e-17,\"align\":\"0-0 2-0 3-1 4-2 5-3 6-4\"," +
+                "\"targetDelimiters\":[\"\",\" \",\" \",\" \",\" \",\"\"],\"targetWords\":[\"Allons\",\"à\"," +
+                "\"Mike\",\"de\",\"maison\"],\"target\":\"Allons à Mike de maison\",\"targetWithTags\":\"Allons " +
+                "à Mike de maison\",\"isTMMatch\":false,\"provenance\":\"0 0 0 0 0\"}]}";
+        setupResponse(json);
+        LiltAPI api = new LiltAPIImpl(client, "abcdef");
+        String src = "Let's go to Mike's house";
+        List<Translation> results = api.getRichTranslation(1234, src, 1);
+        assertEquals(1, results.size());
+        assertEquals("Allons à Mike de maison", results.get(0).target);
+        assertFalse(results.get(0).isTMMatch);
+    }
+
     private void setupResponse(String rawJson) throws Exception {
         when(client.execute(any(HttpUriRequest.class))).thenReturn(response);
         when(response.getEntity()).thenReturn(entity);

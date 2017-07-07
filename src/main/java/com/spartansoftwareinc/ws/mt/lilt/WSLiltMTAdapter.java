@@ -13,7 +13,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.Logger;
 
 import com.idiominc.wssdk.WSContext;
-import com.idiominc.wssdk.WSRuntimeException;
 import com.idiominc.wssdk.WSVersion;
 import com.idiominc.wssdk.component.WSComponentConfiguration;
 import com.idiominc.wssdk.component.WSComponentConfigurationUI;
@@ -29,7 +28,6 @@ import com.spartansoftwareinc.lilt.Version;
 import com.spartansoftwareinc.lilt.api.LiltAPI;
 import com.spartansoftwareinc.lilt.api.LiltAPIImpl;
 import com.spartansoftwareinc.lilt.api.Memory;
-import com.spartansoftwareinc.lilt.api.Translation;
 import com.spartansoftwareinc.ws.mt.okapi.MTRequestConverter;
 
 public class WSLiltMTAdapter extends WSMTAdapterComponent {
@@ -157,23 +155,16 @@ public class WSLiltMTAdapter extends WSMTAdapterComponent {
     protected void handleRequest(Memory mem, WSMTRequest request) throws IOException {
         String sourceWithCodeMarkup = converter.addCodeMarkup(request.getSource());
         LOG.info("Request: Converted [" + request.getSource() + "] --> [" + sourceWithCodeMarkup + "]");
-        List<Translation> response = getLiltAPI().getRichTranslation(mem.id, sourceWithCodeMarkup, 10);
+        List<String> response = getLiltAPI().getSimpleTranslation(mem.id, sourceWithCodeMarkup, 1);
         WSMTResult[] results = new WSMTResult[1];
-        Translation translationObj = null;
-        for (Translation t : response) {
-            if (!t.isTMMatch) {
-                translationObj = t;
-                break;
-            }
-        }
-        if (translationObj == null) {
+        if (response.isEmpty()) {
             // We couldn't find a non-TM match in the first 10 results.  Since the API
             // currently doesn't return code data in TM results, we're skipping this for now.
             LOG.warn("Skipping segment that has no MT results available: " + request.getSource());
             request.setResults(new WSMTResult[0]);
             return;
         }
-        String result = translationObj.targetWithTags == null ? translationObj.target : translationObj.targetWithTags;
+        String result = response.get(0);
         String translation = converter.removeCodeMarkup(result);
         LOG.info("Result: Converted [" + result + "] --> [" + translation + "]");
         results[0] = new WSMTResult(request.getSource(), translation, getConfiguration().getMatchScore());
