@@ -4,7 +4,7 @@
 
   <groupId>com.spartansoftwareinc.ws.mt.lilt</groupId>
   <artifactId>ws-mt-lilt</artifactId>
-  <version>2.1</version>
+  <version>2.1.1</version>
   <packaging>jar</packaging>
 
   <name>Lilt MT Adapter for WorldServer</name>
@@ -123,8 +123,8 @@
                   <shadedPattern>okapi_ws_components.org.apache.http</shadedPattern>
                 </relocation>
                 <relocation>
-                  <pattern>com.ibm.icu</pattern>
-                  <shadedPattern>okapi_ws_components.com.ibm.icu</shadedPattern>
+                  <pattern>org.json</pattern>
+                  <shadedPattern>okapi_ws_components.org.json</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>
